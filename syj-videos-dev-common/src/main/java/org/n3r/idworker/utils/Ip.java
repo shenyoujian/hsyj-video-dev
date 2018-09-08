@@ -32,10 +32,12 @@ public class Ip {
     }
 
     private static InetAddress getFirstNonLoopbackAddress() throws SocketException {
-        Enumeration en = NetworkInterface.getNetworkInterfaces();
+        @SuppressWarnings("rawtypes")
+		Enumeration en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
             NetworkInterface i = (NetworkInterface) en.nextElement();
-            for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
+            for (@SuppressWarnings("rawtypes")
+			Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
                 InetAddress addr = (InetAddress) en2.nextElement();
                 if (addr.isLoopbackAddress()) continue;
 

@@ -21,7 +21,8 @@ public class FileLock {
     private java.nio.channels.FileLock flock = null;
     Logger logger = LoggerFactory.getLogger(FileLock.class);
 
-    public FileLock(File file) {
+    @SuppressWarnings("resource")
+	public FileLock(File file) {
         this.file = file;
 
         try {

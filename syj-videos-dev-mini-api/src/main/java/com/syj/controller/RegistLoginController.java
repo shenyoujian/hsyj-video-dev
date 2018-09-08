@@ -5,24 +5,24 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.pagehelper.util.StringUtil;
+
 import com.syj.pojo.Users;
+import com.syj.pojo.vo.UsersVO;
 import com.syj.service.UserService;
 import com.syj.utils.SyjJSONResult;
 import com.syj.utils.MD5Utils;
 
+
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = "用户注册登录的接口", tags = { "注册和登录的controller" })
-public class RegistLoginController {
+public class RegistLoginController extends BasicController {
 
 	@Autowired
 	private UserService userService;
@@ -53,7 +53,30 @@ public class RegistLoginController {
 
 		// 4、user返回给前端数据，为了安全起见，不需要传密码给前端
 		user.setPassword("");
-		return SyjJSONResult.ok(user);
+
+		// 创建token存进redis
+//		String uniqueToken = UUID.randomUUID().toString();
+//		redis.set(USER_REDIS_SESSION + ":" + user.getId(), uniqueToken);
+		// 然后把这个token返回给前端，但是我们的user没有token这个属性
+		// 所以需要创建一个增强vouser,然后使用工具类把user的值复制到uservo
+		// 最后再返回uservo
+		UsersVO userVo = setUserRedisSessionToken(user);
+//		BeanUtils.copyProperties(user, userVo);
+//		userVo.setUserToken(uniqueToken);
+		return SyjJSONResult.ok(userVo);
+	}
+	
+	/**
+	 * @Description:生成token，存入redis
+	 */
+	public UsersVO setUserRedisSessionToken(Users userModel) {
+		String uniqueToken = UUID.randomUUID().toString();
+		redis.set(USER_REDIS_SESSION + ":" + userModel.getId(), uniqueToken, 1000 * 60 * 30);
+		
+		UsersVO userVO = new UsersVO();
+		BeanUtils.copyProperties(userModel, userVO);
+		userVO.setUserToken(uniqueToken);
+		return userVO;
 	}
 
 	@ApiOperation(value = "用户登录", notes = "用户登录的接口")
@@ -73,8 +96,9 @@ public class RegistLoginController {
 
 		// 3、user返回给前端数据，为了安全起见，不需要传密码给前端
 		if (userResult != null) {
-			user.setPassword("");
-			return SyjJSONResult.ok(user);
+			userResult.setPassword("");
+			UsersVO userVo = setUserRedisSessionToken(userResult);
+			return SyjJSONResult.ok(userVo);
 		} else {
 			return SyjJSONResult.errorMsg("用户名或密码错误！");
 		}
