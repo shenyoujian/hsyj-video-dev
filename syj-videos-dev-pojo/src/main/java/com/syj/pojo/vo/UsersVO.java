@@ -1,5 +1,7 @@
 package com.syj.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -19,8 +21,9 @@ public class UsersVO {
     private String username;
 
     /**
-     * 密码
+     * 密码,使用JsonIgnore跟在controller里设置空一样
      */
+    @JsonIgnore
     @ApiModelProperty(value="密码", name="password", example="123456", required=true)
     private String password;
 

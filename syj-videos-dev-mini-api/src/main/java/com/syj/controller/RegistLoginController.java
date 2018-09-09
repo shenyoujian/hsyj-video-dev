@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.syj.pojo.Users;
 import com.syj.pojo.vo.UsersVO;
 import com.syj.service.UserService;
 import com.syj.utils.SyjJSONResult;
 import com.syj.utils.MD5Utils;
 
-
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -65,14 +64,14 @@ public class RegistLoginController extends BasicController {
 //		userVo.setUserToken(uniqueToken);
 		return SyjJSONResult.ok(userVo);
 	}
-	
+
 	/**
 	 * @Description:生成token，存入redis
 	 */
 	public UsersVO setUserRedisSessionToken(Users userModel) {
 		String uniqueToken = UUID.randomUUID().toString();
 		redis.set(USER_REDIS_SESSION + ":" + userModel.getId(), uniqueToken, 1000 * 60 * 30);
-		
+
 		UsersVO userVO = new UsersVO();
 		BeanUtils.copyProperties(userModel, userVO);
 		userVO.setUserToken(uniqueToken);
@@ -102,6 +101,16 @@ public class RegistLoginController extends BasicController {
 		} else {
 			return SyjJSONResult.errorMsg("用户名或密码错误！");
 		}
+	}
+
+	@ApiOperation(value = "用户注销", notes = "用户注销的接口")
+	@ApiImplicitParam(name = "userId", value = "用户id", required = true, 
+	dataType = "String", paramType = "query")
+	@PostMapping("/logout")
+	public SyjJSONResult logout(String userId) throws Exception {
+		redis.del(USER_REDIS_SESSION + ":" + userId);
+		return SyjJSONResult.ok();
+
 	}
 
 }

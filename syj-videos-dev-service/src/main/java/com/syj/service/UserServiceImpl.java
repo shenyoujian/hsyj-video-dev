@@ -42,12 +42,28 @@ public class UserServiceImpl implements UserService {
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public Users queryUserForLogin(String username, String password) {
-		//也可以使用selectOne函数
+		// 也可以使用selectOne函数
 		Example userExample = new Example(Users.class);
 		Criteria criteria = userExample.createCriteria();
 		criteria.andEqualTo("username", username);
 		criteria.andEqualTo("password", password);
-		Users result = userMapper.selectOneByExample(userExample);		
+		Users result = userMapper.selectOneByExample(userExample);
 		return result;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void updateUserInfo(Users user) {
+//		Example example = new Example(Users.class);
+//		Criteria criteria = example.createCriteria();
+//		criteria.andEqualTo("id", user.getId());
+//		userMapper.updateByExample(user, example);
+		userMapper.updateByPrimaryKeySelective(user);
+	}
+
+	@Override
+	public Users queryUserInfo(String userId) {
+		Users user = userMapper.selectByPrimaryKey(userId);
+		return user;
 	}
 }
