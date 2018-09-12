@@ -1,4 +1,4 @@
-package com.syj.service;
+package com.syj.service.impl;
 
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.syj.mapper.UsersMapper;
 import com.syj.pojo.Users;
+import com.syj.service.UserService;
 
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;

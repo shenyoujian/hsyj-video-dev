@@ -32,7 +32,7 @@ public class UserController extends BasicController {
 	private UserService userService;
 
 	/**
-	 * @Description:用户上传头像
+	 * @Description:用户上传头像接口
 	 */
 	@ApiOperation(value = "用户上传头像", notes = "用户上传头像的接口")
 	@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query")
@@ -100,7 +100,7 @@ public class UserController extends BasicController {
 	}
 
 	/**
-	 * @Description:用户上传头像
+	 * @Description:查询用户信息接口
 	 */
 	@ApiOperation(value = "查询用户信息", notes = "查询用户信息的接口")
 	@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query")
