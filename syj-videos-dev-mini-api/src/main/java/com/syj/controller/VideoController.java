@@ -20,6 +20,7 @@ import com.syj.pojo.Videos;
 import com.syj.service.BgmService;
 import com.syj.service.UserService;
 import com.syj.service.VideoService;
+import com.syj.utils.FetchVideoCover;
 import com.syj.utils.MergeVideoMp3;
 import com.syj.utils.SyjJSONResult;
 
@@ -67,6 +68,7 @@ public class VideoController extends BasicController {
 		// String fileSpace = "E:/CodeSpace/syj_videos_dev";
 		// 保存到数据库的相对路径
 		String uploadPathDB = "/" + userId + "/video";
+		String coverPathDB = "/" + userId + "/video";
 
 		FileOutputStream fileOutputStream = null;
 		InputStream inputStream = null;
@@ -76,11 +78,15 @@ public class VideoController extends BasicController {
 		try {
 			if (file != null) {
 				String fileName = file.getOriginalFilename();
+
+				// 对上传的视频名字进行分割用于封面名字,.需要进行转义
+				String fileNamePrefix = fileName.split("\\.")[0];
+
 				if (StringUtils.isNotBlank(fileName)) {
 					finalVideoPath = FILE_SPACE + uploadPathDB + "/" + fileName;
 					// 设置数据库保存路径
 					uploadPathDB += "/" + fileName;
-
+					coverPathDB += "/" + fileNamePrefix + ".jpg";
 					// 根据最终保存路径开始创建文件夹
 					File outFile = new File(finalVideoPath);
 					if (outFile.getParentFile() != null || !outFile.getParentFile().isDirectory()) {
@@ -129,6 +135,11 @@ public class VideoController extends BasicController {
 		System.out.println("uploadPathDB:" + uploadPathDB);
 		System.out.println("finalVideoPath:" + finalVideoPath);
 
+		// 对视频进行截图
+		FetchVideoCover videoInfo = new FetchVideoCover(FFMPEG_EXE);
+		videoInfo.getCover(finalVideoPath, FILE_SPACE + coverPathDB);
+
+		
 		// 保存视频信息到数据库
 		Videos video = new Videos();
 		video.setAudioId(bgmId);
@@ -140,6 +151,7 @@ public class VideoController extends BasicController {
 		video.setVideoDesc(desc);
 		video.setStatus(VideoStatusEnum.SUCCESS.value);
 		video.setCreateTime(new Date());
+		video.setCoverPath(coverPathDB);
 
 		String videoId = videoService.saveVideo(video);
 
@@ -156,11 +168,11 @@ public class VideoController extends BasicController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "videoId", value = "视频主键Id", required = true, dataType = "String", paramType = "form"),
 			@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "form"), })
-	@PostMapping(value = "/uploadCoverPath", headers = "content-type=multipart/form-data")
+	@PostMapping(value = "/uploadCover", headers = "content-type=multipart/form-data")
 	public SyjJSONResult upload(String videoId, String userId,
 			@ApiParam(value = "视频封面", required = true) MultipartFile file) throws Exception {
 
-		if (StringUtils.isBlank(videoId)||StringUtils.isBlank(userId)) {
+		if (StringUtils.isBlank(videoId) || StringUtils.isBlank(userId)) {
 			return SyjJSONResult.errorMsg("视频主键和用户id不能为空！");
 		}
 
@@ -210,7 +222,7 @@ public class VideoController extends BasicController {
 				fileOutputStream.close();
 			}
 		}
-		
+
 		System.out.println("uploadPathDB:" + uploadPathDB);
 		System.out.println("finalVideoPath:" + finalVideoPath);
 
