@@ -18,4 +18,7 @@ public class BasicController {
 
 	// 文件保存的命名空间
 	public static final String FILE_SPACE = "E:/CodeSpace/syj_videos_dev";
+
+	// 每页分页的记录数
+	public static final int PAGE_SIZE = 5;
 }

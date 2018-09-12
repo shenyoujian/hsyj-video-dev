@@ -22,6 +22,7 @@ import com.syj.service.UserService;
 import com.syj.service.VideoService;
 import com.syj.utils.FetchVideoCover;
 import com.syj.utils.MergeVideoMp3;
+import com.syj.utils.PagedResult;
 import com.syj.utils.SyjJSONResult;
 
 import io.swagger.annotations.Api;
@@ -139,7 +140,6 @@ public class VideoController extends BasicController {
 		FetchVideoCover videoInfo = new FetchVideoCover(FFMPEG_EXE);
 		videoInfo.getCover(finalVideoPath, FILE_SPACE + coverPathDB);
 
-		
 		// 保存视频信息到数据库
 		Videos video = new Videos();
 		video.setAudioId(bgmId);
@@ -231,6 +231,18 @@ public class VideoController extends BasicController {
 
 		return SyjJSONResult.ok();
 
+	}
+
+	/**
+	 * @Description:分页查询视频列表
+	 */
+	@PostMapping(value = "/showAll")
+	public SyjJSONResult showAll(Integer page, Integer pageSize) {
+		if (page == null) {
+			page = 1;
+		}
+		PagedResult result = videoService.getAllVideos(page, PAGE_SIZE);
+		return SyjJSONResult.ok(result);
 	}
 
 }
