@@ -21,10 +21,21 @@ public class VideoServiceImpl implements VideoService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
-	public void saveVideo(Videos video) {
+	public String saveVideo(Videos video) {
 		// 在controller是没有设置id，需要使用sid给他设置id
 		video.setId(sid.nextShort());
 		videoMapper.insertSelective(video);
+		//当保存成功后返回视频id，使上传的封面可以保存到对应的视频
+		return video.getId();
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void updateVideo(String videoId, String coverPath) {
+		Videos video = new Videos();
+		video.setId(videoId);
+		video.setCoverPath(coverPath);
+		videoMapper.updateByPrimaryKeySelective(video);
 	}
 
 }

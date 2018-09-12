@@ -39,7 +39,7 @@ public class VideoController extends BasicController {
 
 	@Autowired
 	private BgmService bgmService;
-	
+
 	@Autowired
 	private VideoService videoService;
 
@@ -63,8 +63,8 @@ public class VideoController extends BasicController {
 		}
 
 		// 文件保存的命名空间
-		//不要使用魔鬼数字
-		//String fileSpace = "E:/CodeSpace/syj_videos_dev";
+		// 不要使用魔鬼数字
+		// String fileSpace = "E:/CodeSpace/syj_videos_dev";
 		// 保存到数据库的相对路径
 		String uploadPathDB = "/" + userId + "/video";
 
@@ -111,39 +111,112 @@ public class VideoController extends BasicController {
 
 		// 上传成功后，判断bgmId是否为空，如果不为空
 		// 那就查询bgm信息，然后合并视频，并且生成新的视频
-		if (StringUtils.isNoneBlank(bgmId)) {
+		if (StringUtils.isNotBlank(bgmId)) {
 			Bgm bgm = bgmService.queryBgmById(bgmId);
 			// MergeVideoMp3 mvm = new MergeVideoMp3("E:\\soft\\ffmpeg\\bin\\ffmpeg.exe");
 			// 不要魔鬼数字
-			//开始整合
+			// 开始整合
 			MergeVideoMp3 mvm = new MergeVideoMp3(FFMPEG_EXE);
 			String mp3InputPath = FILE_SPACE + bgm.getPath();
 			String videoInputPath = finalVideoPath;
-			//生成随机名字
+			// 生成随机名字
 			String videoOutputName = UUID.randomUUID().toString() + ".mp4";
 			uploadPathDB = "/" + userId + "/video" + "/" + videoOutputName;
 			finalVideoPath = FILE_SPACE + uploadPathDB;
 			mvm.convertor(videoInputPath, mp3InputPath, videoSeconds, finalVideoPath);
 		}
-		
+
 		System.out.println("uploadPathDB:" + uploadPathDB);
 		System.out.println("finalVideoPath:" + finalVideoPath);
 
-		//保存视频信息到数据库
+		// 保存视频信息到数据库
 		Videos video = new Videos();
 		video.setAudioId(bgmId);
 		video.setUserId(userId);
 		video.setVideoHeight(videoHeight);
-		video.setVideoSeconds((float)videoSeconds);
+		video.setVideoSeconds((float) videoSeconds);
 		video.setVideoWidth(videoWidth);
 		video.setVideoPath(uploadPathDB);
 		video.setVideoDesc(desc);
 		video.setStatus(VideoStatusEnum.SUCCESS.value);
 		video.setCreateTime(new Date());
+
+		String videoId = videoService.saveVideo(video);
+
+		// 保存成功后返回视频id，是前端success的res有这个id
+		// 然后上传的封面就可以保存到对应的视频里
+		return SyjJSONResult.ok(videoId);
+
+	}
+
+	/**
+	 * @Description:用户上传视频封面
+	 */
+	@ApiOperation(value = "用户上传视频封面", notes = "用户上传视频封面的接口")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "videoId", value = "视频主键Id", required = true, dataType = "String", paramType = "form"),
+			@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "form"), })
+	@PostMapping(value = "/uploadCoverPath", headers = "content-type=multipart/form-data")
+	public SyjJSONResult upload(String videoId, String userId,
+			@ApiParam(value = "视频封面", required = true) MultipartFile file) throws Exception {
+
+		if (StringUtils.isBlank(videoId)||StringUtils.isBlank(userId)) {
+			return SyjJSONResult.errorMsg("视频主键和用户id不能为空！");
+		}
+
+		// 文件保存的命名空间
+		// 不要使用魔鬼数字
+		// String fileSpace = "E:/CodeSpace/syj_videos_dev";
+		// 保存到数据库的相对路径，和视频保存在一起
+		String uploadPathDB = "/" + userId + "/video";
+
+		FileOutputStream fileOutputStream = null;
+		InputStream inputStream = null;
+		// 文件上传的最终保存路径
+		String finalVideoPath = "";
+
+		try {
+			if (file != null) {
+				String fileName = file.getOriginalFilename();
+				if (StringUtils.isNotBlank(fileName)) {
+					finalVideoPath = FILE_SPACE + uploadPathDB + "/" + fileName;
+					// 设置数据库保存路径
+					uploadPathDB += "/" + fileName;
+
+					// 根据最终保存路径开始创建文件夹
+					File outFile = new File(finalVideoPath);
+					if (outFile.getParentFile() != null || !outFile.getParentFile().isDirectory()) {
+						// 创建父文件夹
+						outFile.getParentFile().mkdirs();
+					}
+
+					// 文件创建成功后开始写入
+					fileOutputStream = new FileOutputStream(outFile);
+					// 先读到内存
+					inputStream = file.getInputStream();
+					// 使用io工具类把读到内存里的开始写入硬盘
+					IOUtils.copy(inputStream, fileOutputStream);
+
+				} else {
+					return SyjJSONResult.errorMsg("上传出错！");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return SyjJSONResult.errorMsg("上传出错！");
+		} finally {
+			if (fileOutputStream != null) {
+				fileOutputStream.flush();
+				fileOutputStream.close();
+			}
+		}
 		
-		videoService.saveVideo(video);
-		
-		// 返回存储路径使前端可以获取头像相对地址
+		System.out.println("uploadPathDB:" + uploadPathDB);
+		System.out.println("finalVideoPath:" + finalVideoPath);
+
+		// 更新视频封面信息到数据库
+		videoService.updateVideo(videoId, uploadPathDB);
+
 		return SyjJSONResult.ok();
 
 	}
