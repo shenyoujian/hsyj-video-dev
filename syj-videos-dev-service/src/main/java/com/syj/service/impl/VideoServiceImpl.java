@@ -83,4 +83,10 @@ public class VideoServiceImpl implements VideoService {
 		return pagedResult;
 	}
 
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public List<String> getHotwords() {
+		return searchRecordsMapper.getHotwords();
+	}
+
 }

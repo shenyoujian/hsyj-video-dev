@@ -248,5 +248,14 @@ public class VideoController extends BasicController {
 		PagedResult result = videoService.getAllVideos(video, isSaveRecord, page, PAGE_SIZE);
 		return SyjJSONResult.ok(result);
 	}
+	
+	
+	/**
+	 * @Description:
+	 */
+	@PostMapping(value = "/hot")
+	public SyjJSONResult hot() {
+		return SyjJSONResult.ok(videoService.getHotwords());
+	}
 
 }

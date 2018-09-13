@@ -1,5 +1,7 @@
 package com.syj.service;
 
+import java.util.List;
+
 import com.syj.pojo.Videos;
 import com.syj.utils.PagedResult;
 
@@ -20,4 +22,8 @@ public interface VideoService {
 	 */
 	PagedResult getAllVideos(Videos video, Integer isSaveRecord, Integer page, Integer pageSize);
 
+	/**
+	 * @Description:获取热搜词列表
+	 */
+	List<String> getHotwords();
 }
