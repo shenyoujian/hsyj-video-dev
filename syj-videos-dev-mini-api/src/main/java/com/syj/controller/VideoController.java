@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -234,14 +235,17 @@ public class VideoController extends BasicController {
 	}
 
 	/**
-	 * @Description:分页查询视频列表
+	 * @Description:分页和搜索查询视频列表
+	 * isSaveRecord：1 - 代表需要保存
+	 * 				 0 - 不需要保存，或者为空
 	 */
 	@PostMapping(value = "/showAll")
-	public SyjJSONResult showAll(Integer page, Integer pageSize) {
+	public SyjJSONResult showAll(@RequestBody Videos video, Integer isSaveRecord, 
+			Integer page) {
 		if (page == null) {
 			page = 1;
 		}
-		PagedResult result = videoService.getAllVideos(page, PAGE_SIZE);
+		PagedResult result = videoService.getAllVideos(video, isSaveRecord, page, PAGE_SIZE);
 		return SyjJSONResult.ok(result);
 	}
 

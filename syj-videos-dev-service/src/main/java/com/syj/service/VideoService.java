@@ -18,6 +18,6 @@ public interface VideoService {
 	/**
 	 * @Description:分页查询视频列表
 	 */
-	PagedResult getAllVideos(Integer page, Integer pageSize);
+	PagedResult getAllVideos(Videos video, Integer isSaveRecord, Integer page, Integer pageSize);
 
 }
