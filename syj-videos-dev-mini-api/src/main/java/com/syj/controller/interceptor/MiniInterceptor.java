@@ -59,7 +59,7 @@ public class MiniInterceptor implements HandlerInterceptor {
 		 * 返回 false：请求被拦截，返回
 		 * 返回 true ：请求OK，可以继续执行，放行
 		 */
-		return false;
+		return true;
 	}
 
 	public void returnErrorResponse(HttpServletResponse response, SyjJSONResult result)
