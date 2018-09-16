@@ -256,6 +256,6 @@ public class VideoController extends BasicController {
 	@PostMapping(value = "/hot")
 	public SyjJSONResult hot() {
 		return SyjJSONResult.ok(videoService.getHotwords());
-	}
+		}
 
 }
