@@ -1,5 +1,8 @@
 package com.syj.service.impl;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,9 +10,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.syj.mapper.UsersFansMapper;
+import com.syj.mapper.UsersLikeVideosMapper;
 import com.syj.mapper.UsersMapper;
 import com.syj.pojo.Users;
-import com.syj.pojo.UsersFans;
+import com.syj.pojo.UsersLikeVideos;
 import com.syj.service.UserService;
 
 import tk.mybatis.mapper.entity.Example;
@@ -23,6 +27,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UsersFansMapper usersFansMapper;
+
+	@Autowired
+	private UsersLikeVideosMapper usersLikeVideosMapper;
 
 	@Autowired
 	private Sid sid;
@@ -72,6 +79,29 @@ public class UserServiceImpl implements UserService {
 	public Users queryUserInfo(String userId) {
 		Users user = userMapper.selectByPrimaryKey(userId);
 		return user;
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public boolean isUserLikeVideo(String userId, String videoId) {
+
+		if (StringUtils.isBlank(userId) || StringUtils.isBlank(videoId)) {
+			return false;
+		}
+
+		Example example = new Example(UsersLikeVideos.class);
+		Criteria criteria = example.createCriteria();
+
+		criteria.andEqualTo("userId", userId);
+		criteria.andEqualTo("videoId", videoId);
+
+		List<UsersLikeVideos> list = usersLikeVideosMapper.selectByExample(example);
+
+		if (list != null && list.size() > 0) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

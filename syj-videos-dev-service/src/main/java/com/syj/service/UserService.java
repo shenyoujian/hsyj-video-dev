@@ -28,4 +28,10 @@ public interface UserService {
 	 * @Description:查询用户信息
 	 */
 	Users queryUserInfo(String userId);
+	
+	/**
+	 * @Description: 查询用户是否喜欢点赞视频
+	 */
+	public boolean isUserLikeVideo(String userId, String videoId);
+	
 }
