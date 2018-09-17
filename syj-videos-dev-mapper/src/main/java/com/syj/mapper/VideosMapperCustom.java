@@ -16,16 +16,6 @@ public interface VideosMapperCustom extends MyMapper<Videos> {
 	public List<VideosVO> queryAllVideos(@Param("videoDesc") String videoDesc);
 	
 	/**
-	 * @Description: 查询关注的视频
-	 */
-	public List<VideosVO> queryMyFollowVideos(String userId);
-	
-	/**
-	 * @Description: 查询点赞视频
-	 */
-	public List<VideosVO> queryMyLikeVideos(@Param("userId") String userId);
-	
-	/**
 	 * @Description: 对视频喜欢的数量进行累加
 	 */
 	public void addVideoLikeCount(String videoId);

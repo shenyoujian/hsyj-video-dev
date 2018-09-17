@@ -21,6 +21,7 @@ import com.syj.utils.SyjJSONResult;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -31,9 +32,6 @@ public class UserController extends BasicController {
 	@Autowired
 	private UserService userService;
 
-	/**
-	 * @Description:用户上传头像接口
-	 */
 	@ApiOperation(value = "用户上传头像", notes = "用户上传头像的接口")
 	@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query")
 	@PostMapping("/uploadFace")
@@ -99,9 +97,6 @@ public class UserController extends BasicController {
 
 	}
 
-	/**
-	 * @Description:查询用户信息接口
-	 */
 	@ApiOperation(value = "查询用户信息", notes = "查询用户信息的接口")
 	@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query")
 	@PostMapping("/query")

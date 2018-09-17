@@ -162,9 +162,6 @@ public class VideoController extends BasicController {
 
 	}
 
-	/**
-	 * @Description:用户上传视频封面
-	 */
 	@ApiOperation(value = "用户上传视频封面", notes = "用户上传视频封面的接口")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "videoId", value = "视频主键Id", required = true, dataType = "String", paramType = "form"),
@@ -235,27 +232,50 @@ public class VideoController extends BasicController {
 	}
 
 	/**
-	 * @Description:分页和搜索查询视频列表
-	 * isSaveRecord：1 - 代表需要保存
-	 * 				 0 - 不需要保存，或者为空
+	 * @Description:分页和搜索查询视频列表 isSaveRecord：1 - 代表需要保存 0 - 不需要保存，或者为空
 	 */
 	@PostMapping(value = "/showAll")
-	public SyjJSONResult showAll(@RequestBody Videos video, Integer isSaveRecord, 
-			Integer page) {
+	public SyjJSONResult showAll(@RequestBody Videos video, Integer isSaveRecord, Integer page) {
 		if (page == null) {
 			page = 1;
 		}
 		PagedResult result = videoService.getAllVideos(video, isSaveRecord, page, PAGE_SIZE);
 		return SyjJSONResult.ok(result);
 	}
-	
-	
+
 	/**
 	 * @Description:
 	 */
 	@PostMapping(value = "/hot")
-	public SyjJSONResult hot() {
+	public SyjJSONResult hot() throws Exception {
 		return SyjJSONResult.ok(videoService.getHotwords());
-		}
+	}
+
+	
+	@PostMapping(value = "/userLike")
+	@ApiOperation(value="用户点赞视频",notes="用户点赞视频接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "form"),
+		@ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "form"), 
+		@ApiImplicitParam(name = "videoCreaterId", value = "上传视频用户Id", required = true, dataType = "String", paramType = "form"), 
+		})
+	public SyjJSONResult userLike(String userId, String videoId, String videoCreaterId) throws Exception {
+		videoService.userLikeVideo(userId, videoId, videoCreaterId);
+		return SyjJSONResult.ok("点赞成功...");
+	}
+	
+	
+
+	@PostMapping(value = "/userUnLike")
+	@ApiOperation(value="用户点赞视频",notes="用户点赞视频接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "form"),
+		@ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "form"), 
+		@ApiImplicitParam(name = "videoCreaterId", value = "上传视频用户Id", required = true, dataType = "String", paramType = "form"), 
+		})
+	public SyjJSONResult userUnLike(String userId, String videoId, String videoCreaterId) throws Exception {
+		videoService.userUnLikeVideo(userId, videoId, videoCreaterId);
+		return SyjJSONResult.ok("取消点赞成功...");
+	}
 
 }

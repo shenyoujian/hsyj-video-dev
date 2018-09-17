@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.syj.mapper.UsersFansMapper;
 import com.syj.mapper.UsersMapper;
 import com.syj.pojo.Users;
+import com.syj.pojo.UsersFans;
 import com.syj.service.UserService;
 
 import tk.mybatis.mapper.entity.Example;
@@ -18,6 +20,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UsersMapper userMapper;
+
+	@Autowired
+	private UsersFansMapper usersFansMapper;
 
 	@Autowired
 	private Sid sid;
@@ -62,9 +67,11 @@ public class UserServiceImpl implements UserService {
 		userMapper.updateByPrimaryKeySelective(user);
 	}
 
+	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public Users queryUserInfo(String userId) {
 		Users user = userMapper.selectByPrimaryKey(userId);
 		return user;
 	}
+
 }

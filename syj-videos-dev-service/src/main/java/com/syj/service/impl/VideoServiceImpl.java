@@ -11,25 +11,36 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.syj.mapper.SearchRecordsMapper;
+import com.syj.mapper.UsersLikeVideosMapper;
+import com.syj.mapper.UsersMapper;
 import com.syj.mapper.VideosMapper;
 import com.syj.mapper.VideosMapperCustom;
 import com.syj.pojo.SearchRecords;
+import com.syj.pojo.UsersLikeVideos;
 import com.syj.pojo.Videos;
 import com.syj.pojo.vo.VideosVO;
 import com.syj.service.VideoService;
 import com.syj.utils.PagedResult;
 
+import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
+
 @Service
 public class VideoServiceImpl implements VideoService {
-
+	@Autowired
+	private UsersMapper usersMapper;
+	
 	@Autowired
 	private VideosMapper videoMapper;
 
 	@Autowired
 	private VideosMapperCustom videosMapperCustom;
-	
+
 	@Autowired
 	private SearchRecordsMapper searchRecordsMapper;
+
+	@Autowired
+	private UsersLikeVideosMapper usersLikeVideosMapper;
 
 	@Autowired
 	private Sid sid;
@@ -57,7 +68,7 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public PagedResult getAllVideos(Videos video, Integer isSaveRecord, Integer page, Integer pageSize) {
 
-		//保存热搜词
+		// 保存热搜词
 		String videoDesc = video.getVideoDesc();
 		if (isSaveRecord != null && isSaveRecord == 1) {
 			SearchRecords searchRecords = new SearchRecords();
@@ -67,7 +78,7 @@ public class VideoServiceImpl implements VideoService {
 			searchRecordsMapper.insert(searchRecords);
 		}
 
-		//分页查询，添加desc查询
+		// 分页查询，添加desc查询
 		PageHelper pageHelper = new PageHelper();
 		pageHelper.startPage(page, pageSize);
 		List<VideosVO> list = videosMapperCustom.queryAllVideos(videoDesc);
@@ -87,6 +98,41 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public List<String> getHotwords() {
 		return searchRecordsMapper.getHotwords();
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void userLikeVideo(String userId, String videoId, String videoCreaterId) {
+		// 1、保存用户和视频的喜欢点赞关联关系表
+		String likeId = sid.nextShort();
+		UsersLikeVideos ulv = new UsersLikeVideos();
+		ulv.setId(likeId);
+		ulv.setUserId(userId);
+		ulv.setVideoId(videoId);
+		usersLikeVideosMapper.insert(ulv);
+
+		// 2、视频喜欢数量累加
+		videosMapperCustom.addVideoLikeCount(videoId);
+
+		// 3、用户受喜欢的数量累加
+		usersMapper.addReceiveLikeCount(userId);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void userUnLikeVideo(String userId, String videoId, String videoCreaterId) {
+		// 1、删除用户和视频的喜欢点赞关联关系表
+		Example example = new Example(UsersLikeVideos.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("userId", userId);
+		criteria.andEqualTo("videoId", videoId);
+		usersLikeVideosMapper.deleteByExample(example);
+
+		// 2、视频喜欢数量累减
+		videosMapperCustom.reduceVideoLikeCount(videoId);
+
+		// 3、用户受喜欢的数量累减
+		usersMapper.reduceReceiveLikeCount(userId);
 	}
 
 }
