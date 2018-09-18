@@ -70,6 +70,7 @@ public class VideoServiceImpl implements VideoService {
 
 		// 保存热搜词
 		String videoDesc = video.getVideoDesc();
+		String userId = video.getUserId();
 		if (isSaveRecord != null && isSaveRecord == 1) {
 			SearchRecords searchRecords = new SearchRecords();
 			String id = sid.nextShort();
@@ -81,7 +82,7 @@ public class VideoServiceImpl implements VideoService {
 		// 分页查询，添加desc查询
 		PageHelper pageHelper = new PageHelper();
 		pageHelper.startPage(page, pageSize);
-		List<VideosVO> list = videosMapperCustom.queryAllVideos(videoDesc);
+		List<VideosVO> list = videosMapperCustom.queryAllVideos(videoDesc,userId);
 
 		PageInfo<VideosVO> pageList = new PageInfo<>(list);
 		PagedResult pagedResult = new PagedResult();
@@ -93,7 +94,44 @@ public class VideoServiceImpl implements VideoService {
 
 		return pagedResult;
 	}
+	
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public PagedResult queryMyLikeVideos(String userId, Integer page, Integer pageSize) {
+		PageHelper.startPage(page, pageSize);
+		List<VideosVO> list = videosMapperCustom.queryMyLikeVideos(userId);
+				
+		PageInfo<VideosVO> pageList = new PageInfo<>(list);
+		
+		PagedResult pagedResult = new PagedResult();
+		pagedResult.setTotal(pageList.getPages());
+		pagedResult.setRows(list);
+		pagedResult.setPage(page);
+		pagedResult.setRecords(pageList.getTotal());
+		
+		return pagedResult;
+	}
 
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public PagedResult queryMyFollowVideos(String userId, Integer page, Integer pageSize) {
+		PageHelper.startPage(page, pageSize);
+		List<VideosVO> list = videosMapperCustom.queryMyFollowVideos(userId);
+				
+		PageInfo<VideosVO> pageList = new PageInfo<>(list);
+		
+		PagedResult pagedResult = new PagedResult();
+		pagedResult.setTotal(pageList.getPages());
+		pagedResult.setRows(list);
+		pagedResult.setPage(page);
+		pagedResult.setRecords(pageList.getTotal());
+		
+		return pagedResult;
+	}
+	
+	
+	
+	
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public List<String> getHotwords() {
@@ -121,18 +159,26 @@ public class VideoServiceImpl implements VideoService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public void userUnLikeVideo(String userId, String videoId, String videoCreaterId) {
-		// 1、删除用户和视频的喜欢点赞关联关系表
+		// 1. 删除用户和视频的喜欢点赞关联关系表
+		
 		Example example = new Example(UsersLikeVideos.class);
 		Criteria criteria = example.createCriteria();
+		
 		criteria.andEqualTo("userId", userId);
 		criteria.andEqualTo("videoId", videoId);
+		
 		usersLikeVideosMapper.deleteByExample(example);
-
-		// 2、视频喜欢数量累减
+		
+		// 2. 视频喜欢数量累减
 		videosMapperCustom.reduceVideoLikeCount(videoId);
-
-		// 3、用户受喜欢的数量累减
-		usersMapper.reduceReceiveLikeCount(userId);
+		
+		// 3. 用户受喜欢数量的累减
+		usersMapper.reduceReceiveLikeCount(videoCreaterId);
+		
 	}
+
+	
+
+	
 
 }

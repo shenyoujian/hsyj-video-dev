@@ -242,6 +242,53 @@ public class VideoController extends BasicController {
 		PagedResult result = videoService.getAllVideos(video, isSaveRecord, page, PAGE_SIZE);
 		return SyjJSONResult.ok(result);
 	}
+	
+	
+	/**
+	 * @Description: 我关注的人发的视频
+	 */
+	@PostMapping("/showMyFollow")
+	public SyjJSONResult showMyFollow(String userId, Integer page) throws Exception {
+		
+		if (StringUtils.isBlank(userId)) {
+			return SyjJSONResult.ok();
+		}
+		
+		if (page == null) {
+			page = 1;
+		}
+
+		int pageSize = 6;
+		
+		PagedResult videosList = videoService.queryMyFollowVideos(userId, page, pageSize);
+		
+		return SyjJSONResult.ok(videosList);
+	}
+	
+	
+	/**
+	 * @Description: 我收藏(点赞)过的视频列表
+	 */
+	@PostMapping("/showMyLike")
+	public SyjJSONResult showMyLike(String userId, Integer page, Integer pageSize) throws Exception {
+		
+		if (StringUtils.isBlank(userId)) {
+			return SyjJSONResult.ok();
+		}
+		
+		if (page == null) {
+			page = 1;
+		}
+
+		if (pageSize == null) {
+			pageSize = 6;
+		}
+		
+		PagedResult videosList = videoService.queryMyLikeVideos(userId, page, pageSize);
+		
+		return SyjJSONResult.ok(videosList);
+	}
+	
 
 	/**
 	 * @Description:
