@@ -1,5 +1,6 @@
 package com.syj.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.syj.mapper.UsersFansMapper;
 import com.syj.mapper.UsersLikeVideosMapper;
 import com.syj.mapper.UsersMapper;
+import com.syj.mapper.UsersReportMapper;
 import com.syj.pojo.Users;
 import com.syj.pojo.UsersFans;
 import com.syj.pojo.UsersLikeVideos;
@@ -26,6 +28,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UsersMapper userMapper;
+	
+	@Autowired
+	private UsersReportMapper usersReportMapper;
 
 	@Autowired
 	private UsersFansMapper usersFansMapper;
@@ -153,5 +158,16 @@ public class UserServiceImpl implements UserService {
 			return true;
 		}
 		return false;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void reportUser(UsersReport userReport) {
+		
+		String urId = sid.nextShort();
+		userReport.setId(urId);
+		userReport.setCreateDate(new Date());
+		
+		usersReportMapper.insert(userReport);
 	}
 }
