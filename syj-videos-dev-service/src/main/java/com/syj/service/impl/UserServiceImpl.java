@@ -13,7 +13,9 @@ import com.syj.mapper.UsersFansMapper;
 import com.syj.mapper.UsersLikeVideosMapper;
 import com.syj.mapper.UsersMapper;
 import com.syj.pojo.Users;
+import com.syj.pojo.UsersFans;
 import com.syj.pojo.UsersLikeVideos;
+import com.syj.pojo.UsersReport;
 import com.syj.service.UserService;
 
 import tk.mybatis.mapper.entity.Example;
@@ -104,4 +106,52 @@ public class UserServiceImpl implements UserService {
 		return false;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void saveUserFanRelation(String userId, String fanId) {
+
+		String relId = sid.nextShort();
+
+		UsersFans userFan = new UsersFans();
+		userFan.setId(relId);
+		userFan.setUserId(userId);
+		userFan.setFanId(fanId);
+
+		usersFansMapper.insert(userFan);
+
+		userMapper.addFansCount(userId);
+		userMapper.addFollersCount(fanId);
+
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void deleteUserFanRelation(String userId, String fanId) {
+
+		Example example = new Example(UsersFans.class);
+		Criteria criteria = example.createCriteria();
+
+		criteria.andEqualTo("userId", userId);
+		criteria.andEqualTo("fanId", fanId);
+
+		usersFansMapper.deleteByExample(example);
+
+		userMapper.reduceFansCount(userId);
+		userMapper.reduceFollersCount(fanId);
+
+	}
+
+	@Override
+	public boolean queryIfFollow(String userId, String fanId) {
+		Example example = new Example(UsersFans.class);
+		Criteria criteria = example.createCriteria();
+
+		criteria.andEqualTo("userId", userId);
+		criteria.andEqualTo("fanId", fanId);
+		List<UsersFans> list = usersFansMapper.selectByExample(example);
+		if (list != null && list.size() > 0 && !list.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
 }

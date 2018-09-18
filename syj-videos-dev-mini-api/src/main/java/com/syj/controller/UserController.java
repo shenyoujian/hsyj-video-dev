@@ -99,49 +99,75 @@ public class UserController extends BasicController {
 	}
 
 	@ApiOperation(value = "查询用户信息", notes = "查询用户信息的接口")
-	@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query"),
+		@ApiImplicitParam(name = "fanId", value = "粉丝Id", required = true, dataType = "String", paramType = "query")
+	})
 	@PostMapping("/query")
-	public SyjJSONResult query(String userId) throws Exception {
+	public SyjJSONResult query(String userId, String fanId) throws Exception {
 
 		if (StringUtils.isBlank(userId)) {
 			return SyjJSONResult.errorMsg("用户id不能为空...");
 		}
-		
+
 		Users userInfo = userService.queryUserInfo(userId);
 		UsersVO userVO = new UsersVO();
-		//在vo里设置了jsonignore所以不需要自己设置
-		//userVO.setPassword("");
+		// 在vo里设置了jsonignore所以不需要自己设置
+		// userVO.setPassword("");
+		userVO.setFollow(userService.queryIfFollow(userId, fanId));
 		BeanUtils.copyProperties(userInfo, userVO);
 		return SyjJSONResult.ok(userVO);
 
 	}
-	
+
 	@ApiOperation(value = "查询视频发布者信息", notes = "查询视频发布者信息的接口")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "loginUserId", value = "用户Id", required = true, dataType = "String", paramType = "form"),
-		@ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "form"),
-		@ApiImplicitParam(name = "publishUserId", value = "视频发布者Id", required = true, dataType = "String", paramType = "form")
-	})
+			@ApiImplicitParam(name = "loginUserId", value = "用户Id", required = true, dataType = "String", paramType = "form"),
+			@ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "form"),
+			@ApiImplicitParam(name = "publishUserId", value = "视频发布者Id", required = true, dataType = "String", paramType = "form") })
 	@PostMapping("/queryPublisher")
-	public SyjJSONResult queryPublisher(String loginUserId, String videoId, 
-			String publishUserId) throws Exception {
-		
+	public SyjJSONResult queryPublisher(String loginUserId, String videoId, String publishUserId) throws Exception {
+
 		if (StringUtils.isBlank(publishUserId)) {
 			return SyjJSONResult.errorMsg("");
 		}
-		
+
 		// 1. 查询视频发布者的信息
 		Users userInfo = userService.queryUserInfo(publishUserId);
 		UsersVO publisher = new UsersVO();
 		BeanUtils.copyProperties(userInfo, publisher);
-		
+
 		// 2. 查询当前登录者和视频的点赞关系
 		boolean userLikeVideo = userService.isUserLikeVideo(loginUserId, videoId);
-		
+
 		PublisherVideo bean = new PublisherVideo();
 		bean.setPublisher(publisher);
 		bean.setUserLikeVideo(userLikeVideo);
-		
+
 		return SyjJSONResult.ok(bean);
+	}
+
+	@PostMapping("/beyourfans")
+	public SyjJSONResult beyourfans(String userId, String fanId) throws Exception {
+
+		if (StringUtils.isBlank(userId) || StringUtils.isBlank(fanId)) {
+			return SyjJSONResult.errorMsg("");
+		}
+
+		userService.saveUserFanRelation(userId, fanId);
+
+		return SyjJSONResult.ok("关注成功...");
+	}
+
+	@PostMapping("/dontbeyourfans")
+	public SyjJSONResult dontbeyourfans(String userId, String fanId) throws Exception {
+
+		if (StringUtils.isBlank(userId) || StringUtils.isBlank(fanId)) {
+			return SyjJSONResult.errorMsg("");
+		}
+
+		userService.deleteUserFanRelation(userId, fanId);
+
+		return SyjJSONResult.ok("取消关注成功...");
 	}
 }
