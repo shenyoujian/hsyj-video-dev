@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -22,9 +21,11 @@ import com.syj.pojo.Comments;
 import com.syj.pojo.SearchRecords;
 import com.syj.pojo.UsersLikeVideos;
 import com.syj.pojo.Videos;
+import com.syj.pojo.vo.CommentsVO;
 import com.syj.pojo.vo.VideosVO;
 import com.syj.service.VideoService;
 import com.syj.utils.PagedResult;
+import com.syj.utils.TimeAgoUtils;
 
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
@@ -33,7 +34,7 @@ import tk.mybatis.mapper.entity.Example.Criteria;
 public class VideoServiceImpl implements VideoService {
 	@Autowired
 	private UsersMapper usersMapper;
-	
+
 	@Autowired
 	private VideosMapper videoMapper;
 
@@ -45,7 +46,7 @@ public class VideoServiceImpl implements VideoService {
 
 	@Autowired
 	private UsersLikeVideosMapper usersLikeVideosMapper;
-	
+
 	@Autowired
 	private CommentsMapper commentsMapper;
 
@@ -89,7 +90,7 @@ public class VideoServiceImpl implements VideoService {
 		// 分页查询，添加desc查询
 		PageHelper pageHelper = new PageHelper();
 		pageHelper.startPage(page, pageSize);
-		List<VideosVO> list = videosMapperCustom.queryAllVideos(videoDesc,userId);
+		List<VideosVO> list = videosMapperCustom.queryAllVideos(videoDesc, userId);
 
 		PageInfo<VideosVO> pageList = new PageInfo<>(list);
 		PagedResult pagedResult = new PagedResult();
@@ -101,21 +102,21 @@ public class VideoServiceImpl implements VideoService {
 
 		return pagedResult;
 	}
-	
+
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public PagedResult queryMyLikeVideos(String userId, Integer page, Integer pageSize) {
 		PageHelper.startPage(page, pageSize);
 		List<VideosVO> list = videosMapperCustom.queryMyLikeVideos(userId);
-				
+
 		PageInfo<VideosVO> pageList = new PageInfo<>(list);
-		
+
 		PagedResult pagedResult = new PagedResult();
 		pagedResult.setTotal(pageList.getPages());
 		pagedResult.setRows(list);
 		pagedResult.setPage(page);
 		pagedResult.setRecords(pageList.getTotal());
-		
+
 		return pagedResult;
 	}
 
@@ -124,21 +125,18 @@ public class VideoServiceImpl implements VideoService {
 	public PagedResult queryMyFollowVideos(String userId, Integer page, Integer pageSize) {
 		PageHelper.startPage(page, pageSize);
 		List<VideosVO> list = videosMapperCustom.queryMyFollowVideos(userId);
-				
+
 		PageInfo<VideosVO> pageList = new PageInfo<>(list);
-		
+
 		PagedResult pagedResult = new PagedResult();
 		pagedResult.setTotal(pageList.getPages());
 		pagedResult.setRows(list);
 		pagedResult.setPage(page);
 		pagedResult.setRecords(pageList.getTotal());
-		
+
 		return pagedResult;
 	}
-	
-	
-	
-	
+
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public List<String> getHotwords() {
@@ -167,29 +165,53 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public void userUnLikeVideo(String userId, String videoId, String videoCreaterId) {
 		// 1. 删除用户和视频的喜欢点赞关联关系表
-		
+
 		Example example = new Example(UsersLikeVideos.class);
 		Criteria criteria = example.createCriteria();
-		
+
 		criteria.andEqualTo("userId", userId);
 		criteria.andEqualTo("videoId", videoId);
-		
+
 		usersLikeVideosMapper.deleteByExample(example);
-		
+
 		// 2. 视频喜欢数量累减
 		videosMapperCustom.reduceVideoLikeCount(videoId);
-		
+
 		// 3. 用户受喜欢数量的累减
 		usersMapper.reduceReceiveLikeCount(videoCreaterId);
-		
+
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
-	public void saveComment(Comments comment) {	
+	public void saveComment(Comments comment) {
 		String sid = Sid.next();
 		comment.setId(sid);
 		comment.setCreateTime(new Date());
 		commentsMapper.insert(comment);
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public PagedResult getAllComments(String videoId, Integer page, Integer pageSize) {
+
+		PageHelper.startPage(page, pageSize);
+
+		List<CommentsVO> list = commentsMapper.queryComments(videoId);
+
+		for (CommentsVO c : list) {
+			String timeAgo = TimeAgoUtils.format(c.getCreateTime());
+			c.setTimeAgoStr(timeAgo);
+		}
+
+		PageInfo<CommentsVO> pageList = new PageInfo<>(list);
+
+		PagedResult grid = new PagedResult();
+		grid.setTotal(pageList.getPages());
+		grid.setRows(list);
+		grid.setPage(page);
+		grid.setRecords(pageList.getTotal());
+
+		return grid;
 	}
 }

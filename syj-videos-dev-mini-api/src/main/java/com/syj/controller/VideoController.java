@@ -332,5 +332,32 @@ public class VideoController extends BasicController {
 		videoService.saveComment(comment);
 		return SyjJSONResult.ok("发表留言成功...");
 	}
+	
+	@PostMapping("/getVideoComments")
+	@ApiOperation(value="视频留言分页查询",notes="视频留言分页查询接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "form"),
+		@ApiImplicitParam(name = "page", value = "页数", required = true, dataType = "Integer", paramType = "form"), 
+		@ApiImplicitParam(name = "pageSize", value = "每页显示多少条", required = true, dataType = "Integer", paramType = "form"), 
+		})
+	public SyjJSONResult getVideoComments(String videoId, Integer page, Integer pageSize) throws Exception {
+		
+		if (StringUtils.isBlank(videoId)) {
+			return SyjJSONResult.ok();
+		}
+		
+		// 分页查询视频列表，时间顺序倒序排序
+		if (page == null) {
+			page = 1;
+		}
+
+		if (pageSize == null) {
+			pageSize = 10;
+		}
+		
+		PagedResult list = videoService.getAllComments(videoId, page, pageSize);
+		
+		return SyjJSONResult.ok(list);
+	}
 
 }

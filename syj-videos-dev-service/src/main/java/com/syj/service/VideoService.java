@@ -52,4 +52,9 @@ public interface VideoService {
 	 * @Description:保存用户留言
 	 */
 	void saveComment(Comments comment);
+	
+	/**
+	 * @Description: 留言分页
+	 */
+	public PagedResult getAllComments(String videoId, Integer page, Integer pageSize);
 }
