@@ -1,5 +1,6 @@
 package com.syj.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.n3r.idworker.Sid;
@@ -7,14 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.syj.mapper.CommentsMapper;
 import com.syj.mapper.SearchRecordsMapper;
 import com.syj.mapper.UsersLikeVideosMapper;
 import com.syj.mapper.UsersMapper;
 import com.syj.mapper.VideosMapper;
 import com.syj.mapper.VideosMapperCustom;
+import com.syj.pojo.Comments;
 import com.syj.pojo.SearchRecords;
 import com.syj.pojo.UsersLikeVideos;
 import com.syj.pojo.Videos;
@@ -41,6 +45,9 @@ public class VideoServiceImpl implements VideoService {
 
 	@Autowired
 	private UsersLikeVideosMapper usersLikeVideosMapper;
+	
+	@Autowired
+	private CommentsMapper commentsMapper;
 
 	@Autowired
 	private Sid sid;
@@ -177,8 +184,12 @@ public class VideoServiceImpl implements VideoService {
 		
 	}
 
-	
-
-	
-
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void saveComment(Comments comment) {	
+		String sid = Sid.next();
+		comment.setId(sid);
+		comment.setCreateTime(new Date());
+		commentsMapper.insert(comment);
+	}
 }

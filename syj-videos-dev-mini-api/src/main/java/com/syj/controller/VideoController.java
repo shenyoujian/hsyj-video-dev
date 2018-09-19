@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.syj.emums.VideoStatusEnum;
 import com.syj.pojo.Bgm;
+import com.syj.pojo.Comments;
 import com.syj.pojo.Videos;
 import com.syj.service.BgmService;
 import com.syj.service.UserService;
@@ -323,6 +324,13 @@ public class VideoController extends BasicController {
 	public SyjJSONResult userUnLike(String userId, String videoId, String videoCreaterId) throws Exception {
 		videoService.userUnLikeVideo(userId, videoId, videoCreaterId);
 		return SyjJSONResult.ok("取消点赞成功...");
+	}
+	
+	@PostMapping("/saveComment")
+	public SyjJSONResult saveComment(@RequestBody Comments comment) throws Exception{
+		
+		videoService.saveComment(comment);
+		return SyjJSONResult.ok("发表留言成功...");
 	}
 
 }

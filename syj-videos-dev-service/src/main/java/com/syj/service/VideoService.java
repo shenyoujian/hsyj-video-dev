@@ -2,6 +2,7 @@ package com.syj.service;
 
 import java.util.List;
 
+import com.syj.pojo.Comments;
 import com.syj.pojo.Videos;
 import com.syj.utils.PagedResult;
 
@@ -46,4 +47,9 @@ public interface VideoService {
 	 * @Description:用户不喜欢/取消点赞视频
 	 */
 	void userUnLikeVideo(String userId, String videoId, String videoCreaterId);
+
+	/**
+	 * @Description:保存用户留言
+	 */
+	void saveComment(Comments comment);
 }
