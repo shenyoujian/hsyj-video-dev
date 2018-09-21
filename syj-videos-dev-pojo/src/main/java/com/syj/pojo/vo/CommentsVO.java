@@ -1,35 +1,28 @@
 package com.syj.pojo.vo;
 
 import java.util.Date;
-import javax.persistence.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
 
 public class CommentsVO {
     private String id;
-
-    /**
-     * 视频id
-     */
     private String videoId;
-
-    /**
-     * 留言者，评论的用户id
-     */
     private String fromUserId;
-
     private Date createTime;
-
-    /**
-     * 评论内容
-     */
     private String comment;
-    
     private String faceImage;
     private String nickname;
+    
+	private String toNickname;
     private String timeAgoStr;
     
+    public String getToNickname() {
+		return toNickname;
+	}
 
+	public void setToNickname(String toNickname) {
+		this.toNickname = toNickname;
+	}
+	
     public String getTimeAgoStr() {
 		return timeAgoStr;
 	}
@@ -135,6 +128,4 @@ public class CommentsVO {
     public void setComment(String comment) {
         this.comment = comment;
     }
-
-	
 }

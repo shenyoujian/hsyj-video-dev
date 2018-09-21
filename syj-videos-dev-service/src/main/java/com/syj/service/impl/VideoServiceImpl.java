@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.syj.mapper.CommentsMapper;
+import com.syj.mapper.CommentsMapperCustom;
 import com.syj.mapper.SearchRecordsMapper;
 import com.syj.mapper.UsersLikeVideosMapper;
 import com.syj.mapper.UsersMapper;
@@ -46,9 +47,12 @@ public class VideoServiceImpl implements VideoService {
 
 	@Autowired
 	private UsersLikeVideosMapper usersLikeVideosMapper;
-
+	
 	@Autowired
 	private CommentsMapper commentsMapper;
+	
+	@Autowired
+	private CommentsMapperCustom commentsMapperCustom;
 
 	@Autowired
 	private Sid sid;
@@ -196,8 +200,7 @@ public class VideoServiceImpl implements VideoService {
 	public PagedResult getAllComments(String videoId, Integer page, Integer pageSize) {
 
 		PageHelper.startPage(page, pageSize);
-
-		List<CommentsVO> list = commentsMapper.queryComments(videoId);
+		List<CommentsVO> list = commentsMapperCustom.queryComments(videoId);
 
 		for (CommentsVO c : list) {
 			String timeAgo = TimeAgoUtils.format(c.getCreateTime());

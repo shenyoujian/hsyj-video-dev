@@ -20,7 +20,6 @@ import com.syj.pojo.Bgm;
 import com.syj.pojo.Comments;
 import com.syj.pojo.Videos;
 import com.syj.service.BgmService;
-import com.syj.service.UserService;
 import com.syj.service.VideoService;
 import com.syj.utils.FetchVideoCover;
 import com.syj.utils.MergeVideoMp3;
@@ -38,8 +37,8 @@ import io.swagger.annotations.ApiParam;
 @Api(value = "视频相关操作的接口", tags = { "视频相关操作的controller" })
 public class VideoController extends BasicController {
 
-	@Autowired
-	private UserService userService;
+	//@Autowired
+	//private UserService userService;
 
 	@Autowired
 	private BgmService bgmService;
@@ -327,8 +326,14 @@ public class VideoController extends BasicController {
 	}
 	
 	@PostMapping("/saveComment")
-	public SyjJSONResult saveComment(@RequestBody Comments comment) throws Exception{
+	public SyjJSONResult saveComment(@RequestBody Comments comment, String fatherCommentId, String toUserId) throws Exception{
 		
+		if(StringUtils.isBlank(toUserId)||StringUtils.isBlank(fatherCommentId)) {
+			return SyjJSONResult.errorMsg("回复者或被回复者的id为空...");
+		}else {
+			comment.setFatherCommentId(fatherCommentId);
+			comment.setToUserId(toUserId);
+		}
 		videoService.saveComment(comment);
 		return SyjJSONResult.ok("发表留言成功...");
 	}

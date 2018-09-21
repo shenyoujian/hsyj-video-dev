@@ -7,20 +7,26 @@ public class Comments {
     @Id
     private String id;
 
+    /**
+     * 琚洖澶嶇殑璇勮id
+     */
     @Column(name = "father_comment_id")
     private String fatherCommentId;
 
+    /**
+     * 琚洖澶嶇殑鐢ㄦ埛鐨刬d
+     */
     @Column(name = "to_user_id")
     private String toUserId;
 
     /**
-     * 视频id
+     * 瑙嗛id
      */
     @Column(name = "video_id")
     private String videoId;
 
     /**
-     * 留言者，评论的用户id
+     * 鐣欒█鑰咃紝璇勮鐨勭敤鎴穒d
      */
     @Column(name = "from_user_id")
     private String fromUserId;
@@ -29,7 +35,7 @@ public class Comments {
     private Date createTime;
 
     /**
-     * 评论内容
+     * 璇勮鍐呭
      */
     private String comment;
 
@@ -48,64 +54,72 @@ public class Comments {
     }
 
     /**
-     * @return father_comment_id
+     * 鑾峰彇琚洖澶嶇殑璇勮id
+     *
+     * @return father_comment_id - 琚洖澶嶇殑璇勮id
      */
     public String getFatherCommentId() {
         return fatherCommentId;
     }
 
     /**
-     * @param fatherCommentId
+     * 璁剧疆琚洖澶嶇殑璇勮id
+     *
+     * @param fatherCommentId 琚洖澶嶇殑璇勮id
      */
     public void setFatherCommentId(String fatherCommentId) {
         this.fatherCommentId = fatherCommentId;
     }
 
     /**
-     * @return to_user_id
+     * 鑾峰彇琚洖澶嶇殑鐢ㄦ埛鐨刬d
+     *
+     * @return to_user_id - 琚洖澶嶇殑鐢ㄦ埛鐨刬d
      */
     public String getToUserId() {
         return toUserId;
     }
 
     /**
-     * @param toUserId
+     * 璁剧疆琚洖澶嶇殑鐢ㄦ埛鐨刬d
+     *
+     * @param toUserId 琚洖澶嶇殑鐢ㄦ埛鐨刬d
      */
     public void setToUserId(String toUserId) {
         this.toUserId = toUserId;
     }
 
     /**
-     * 获取视频id
+     * 鑾峰彇瑙嗛id
      *
-     * @return video_id - 视频id
+     * @return video_id - 瑙嗛id
      */
     public String getVideoId() {
         return videoId;
     }
 
     /**
-     * 设置视频id
+     * 璁剧疆瑙嗛id
      *
-     * @param videoId 视频id
+     * @param videoId 瑙嗛id
      */
     public void setVideoId(String videoId) {
         this.videoId = videoId;
     }
 
     /**
-     * 获取留言者，评论的用户id
+     * 鑾峰彇鐣欒█鑰咃紝璇勮鐨勭敤鎴穒d
      *
-     * @return from_user_id - 留言者，评论的用户id
+     * @return from_user_id - 鐣欒█鑰咃紝璇勮鐨勭敤鎴穒d
      */
     public String getFromUserId() {
         return fromUserId;
     }
 
     /**
-     * 设置留言者，评论的用户id
+     * 璁剧疆鐣欒█鑰咃紝璇勮鐨勭敤鎴穒d
      *
-     * @param fromUserId 留言者，评论的用户id
+     * @param fromUserId 鐣欒█鑰咃紝璇勮鐨勭敤鎴穒d
      */
     public void setFromUserId(String fromUserId) {
         this.fromUserId = fromUserId;
@@ -126,18 +140,18 @@ public class Comments {
     }
 
     /**
-     * 获取评论内容
+     * 鑾峰彇璇勮鍐呭
      *
-     * @return comment - 评论内容
+     * @return comment - 璇勮鍐呭
      */
     public String getComment() {
         return comment;
     }
 
     /**
-     * 设置评论内容
+     * 璁剧疆璇勮鍐呭
      *
-     * @param comment 评论内容
+     * @param comment 璇勮鍐呭
      */
     public void setComment(String comment) {
         this.comment = comment;
